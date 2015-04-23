@@ -1,0 +1,59 @@
+package pe.gob.munisjl.javax.servlets;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import pe.gob.munisjl.java.bean.Chart3;
+import pe.gob.munisjl.java.util.ConexionDB;
+import com.google.gson.Gson;
+
+/**
+ * Servlet implementation class ServletChart
+ */
+@WebServlet("/ServletChart3")
+public class ServletChart3 extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		Connection conn=null;
+		PreparedStatement pstm=null;
+		ResultSet rs=null;
+		String sql="call datosChart3();";
+		ArrayList<Chart3> lista=new ArrayList<Chart3>();
+		try {
+			conn=new ConexionDB().getConexion();
+			pstm=conn.prepareStatement(sql);
+			rs=pstm.executeQuery();
+			Chart3 bean=null;
+			while (rs.next()) {
+				bean=new Chart3();
+				bean.setEstado(rs.getString(1));
+				bean.setExpedientes(rs.getInt(2));
+				lista.add(bean);
+			}
+		} catch (Exception e) {
+		 e.printStackTrace();
+		}
+		
+		Gson nuevo=new Gson();
+		String json=nuevo.toJson(lista);
+		PrintWriter out=response.getWriter();
+		//System.out.println(json);
+		out.print(json);
+	}
+
+}
